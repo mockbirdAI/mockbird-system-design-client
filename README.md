@@ -1,5 +1,18 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Docker
+
+Build:
+docker build --platform=linux/amd64 . -f Dockerfile -t mockbird.azurecr.io/mockbird-sys-design
+
+Run:
+docker run --name mockbird-sys-design -p 3000:3000 mockbird.azurecr.io/mockbird-sys-design
+
+Deploy:
+docker push mockbird.azurecr.io/mockbird-sys-design
+
+
+
 ## Getting Started
 
 First, run the development server:
