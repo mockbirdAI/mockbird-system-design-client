@@ -67,12 +67,6 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
     }
   }, [data.executeChain, executeChainCode]);
 
-  useEffect(() => {
-    if (data.inputData !== undefined && data.inputData !== null) {
-      executeCode(); // Execute code when new input data is received
-    }
-  }, [data.inputData, executeCode]);
-
   return (
     <div
       style={{

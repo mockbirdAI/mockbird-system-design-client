@@ -42,18 +42,6 @@ const initialNodes: Node[] = [
     position: { x: 250, y: 100 },
   },
   {
-    id: 'sns',
-    type: 'snsNode',
-    data: {
-      label: 'SNS Node',
-      inputData: null,
-      getCodeExecutionNodes: () => [],
-      notifySubscriber: (id: string, message: string) => {},
-      onExecutionComplete: () => {},
-    },
-    position: { x: 250, y: 200 },
-  },
-  {
     id: '2',
     type: 'codeExecutionNode',
     data: {
@@ -63,11 +51,11 @@ const initialNodes: Node[] = [
       executeChain: false,
       onExecutionComplete: () => {},
     },
-    position: { x: 250, y: 300 },
+    position: { x: 250, y: 200 },
   },
 ];
 
-let id = 4;
+let id = 3;
 const getId = (): string => `dndnode_${id++}`;
 
 // Create a nodeTypes object for React Flow
@@ -168,7 +156,7 @@ const DnDFlow: React.FC = () => {
   const runFlow = () => {
     const connectedNodeIds = findConnectedNodes('0'); // Find all nodes connected to the Start Node
     const order = nodes
-      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'snsNode'))
+      .filter((node) => connectedNodeIds.includes(node.id) && node.type === 'codeExecutionNode')
       .map((node) => node.id);
 
     setExecutionOrder(order);
@@ -188,17 +176,6 @@ const DnDFlow: React.FC = () => {
       updateNodeData(nextNodeId, { executeChain: true });
     } else {
       setCurrentExecutionIndex(null); // End of chain
-    }
-  };
-
-  const getCodeExecutionNodes = () => {
-    return nodes.filter((node) => node.type === 'codeExecutionNode');
-  };
-
-  const notifySubscriber = (nodeId: string, message: string) => {
-    const node = nodes.find((n) => n.id === nodeId);
-    if (node) {
-      updateNodeData(nodeId, { inputData: message, executeChain: true }); // Trigger execution
     }
   };
 
@@ -227,18 +204,6 @@ const DnDFlow: React.FC = () => {
                 data: {
                   ...node.data,
                   runFlow,
-                },
-              };
-            }
-            if (node.type === 'snsNode') {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  inputData: getNodeData(node.id)[0], // Pass input data to SNS node
-                  getCodeExecutionNodes,
-                  notifySubscriber,
-                  onExecutionComplete: () => handleExecutionComplete(node.id),
                 },
               };
             }
