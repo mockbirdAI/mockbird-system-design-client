@@ -3,7 +3,6 @@
 import React, { useRef, useCallback } from 'react';
 import {
   ReactFlow,
-  ReactFlowProvider,
   addEdge,
   useNodesState,
   useEdgesState,
@@ -16,8 +15,8 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
-import nodeTypes from '@/nodeConfig';
-import { useFlowManager } from '@/hooks/useFlowManager';
+import nodeTypes from '../nodeConfig';
+import { useFlowManager } from '../hooks/useFlowManager';
 
 import './main.css';
 
@@ -27,6 +26,29 @@ const initialNodes: Node[] = [
     type: 'startNode',
     data: { label: 'Start Node', runFlow: () => {} },
     position: { x: 250, y: 5 },
+  },
+  {
+    id: '1',
+    type: 'codeExecutionNode',
+    data: {
+      label: 'Code Execution Node 1',
+      inputData: null,
+      setOutputData: (data: any) => {},
+      executeChain: false,
+      onExecutionComplete: () => {},
+    },
+    position: { x: 250, y: 100 },
+  },
+  {
+    id: 'blob',
+    type: 'blobStorageNode',
+    data: {
+      label: 'Blob Storage Node',
+      inputData: null,
+      executeChain: false,
+      onExecutionComplete: () => {},
+    },
+    position: { x: 250, y: 200 },
   },
 ];
 
@@ -106,14 +128,15 @@ const FlowChart: React.FC = () => {
                 },
               };
             }
-            if (node.type === 'snsNode') {
+            if (node.type === 'blobStorageNode') {
               return {
                 ...node,
                 data: {
                   ...node.data,
                   inputData: flowManager.getNodeData(node.id)[0],
-                  getCodeExecutionNodes: flowManager.getCodeExecutionNodes,
-                  notifySubscriber: flowManager.notifySubscriber,
+                  executeChain:
+                    flowManager.currentExecutionIndex !== null &&
+                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
                   onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
                 },
               };
