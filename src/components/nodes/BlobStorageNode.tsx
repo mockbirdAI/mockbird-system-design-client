@@ -10,6 +10,7 @@ interface BlobStorageNodeProps extends NodeProps {
     inputData: any;
     executeChain: boolean;
     onExecutionComplete: () => void;
+    setOutputData: (data: any) => void;
   };
 }
 
@@ -51,6 +52,28 @@ const BlobStorageNode: React.FC<BlobStorageNodeProps> = ({ data }) => {
     setModalOpen(false);
     setSelectedObject(null);
   };
+
+    // Expose a query function for querying stored objects
+    const queryStorage = (query: string) => {
+      try {
+        const results = storedObjects.filter((obj) => {
+          // Implement a simple query mechanism (e.g., filter by property value)
+          return obj.data.id && obj.data.id.includes(query);
+        });
+        return results;
+      } catch (error) {
+        console.error('Query error:', error);
+        return [];
+      }
+    };
+  
+    // Make the queryStorage function available for downstream nodes
+    useEffect(() => {
+      data.setOutputData({
+        queryStorage,
+        storedObjects,
+      });
+    }, [storedObjects, data]);
 
   return (
     <div

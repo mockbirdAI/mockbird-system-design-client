@@ -136,6 +136,7 @@ const FlowChart: React.FC = () => {
                 data: {
                   ...node.data,
                   inputData: flowManager.getNodeData(node.id)[0],
+                  setOutputData: flowManager.handleSetOutputData(node.id), // Ensure setOutputData is set
                   executeChain:
                     flowManager.currentExecutionIndex !== null &&
                     flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
