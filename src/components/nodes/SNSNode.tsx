@@ -1,26 +1,28 @@
-// components/nodes/SNSNode.tsx
+// src/components/nodes/SNSNode.tsx
 
 import React, { useState, useEffect } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, NodeProps } from '@xyflow/react';
 
-interface Subscriber {
-  id: string;
-  name: string;
+interface SNSNodeProps extends NodeProps {
+  data: {
+    label: string;
+    inputData: any;
+    getCodeExecutionNodes: () => { id: string; name: string }[];
+    notifySubscriber: (id: string, message: string) => void;
+    onExecutionComplete: () => void;
+  };
 }
 
-const SNSNode: React.FC<{ data: any }> = ({ data }) => {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [availableNodes, setAvailableNodes] = useState<Subscriber[]>([]);
+const SNSNode: React.FC<SNSNodeProps> = ({ data }) => {
+  const [subscribers, setSubscribers] = useState<{ id: string; name: string }[]>([]);
+  const [availableNodes, setAvailableNodes] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
-    if (typeof data.getCodeExecutionNodes === 'function') {
-      const codeExecutionNodes = data.getCodeExecutionNodes();
-      setAvailableNodes(codeExecutionNodes.map((node: any) => ({ id: node.id, name: node.data.label })));
-    }
+    const codeExecutionNodes = data.getCodeExecutionNodes();
+    setAvailableNodes(codeExecutionNodes.map((node) => ({ id: node.id, name: node.name })));
   }, [data]);
 
   useEffect(() => {
-    // If there's new input data, publish it
     if (data.inputData !== undefined && data.inputData !== null) {
       publishMessage(data.inputData);
     }
@@ -29,13 +31,9 @@ const SNSNode: React.FC<{ data: any }> = ({ data }) => {
   const publishMessage = (message: string) => {
     subscribers.forEach((subscriber) => {
       console.log(`Notifying ${subscriber.name}: ${message}`);
-      if (typeof data.notifySubscriber === 'function') {
-        data.notifySubscriber(subscriber.id, message);
-      }
+      data.notifySubscriber(subscriber.id, message);
     });
-    if (data.onExecutionComplete) {
-      data.onExecutionComplete(); // Indicate SNS node execution is complete
-    }
+    data.onExecutionComplete();
   };
 
   const addSubscriber = (nodeId: string) => {
