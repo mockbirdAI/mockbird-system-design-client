@@ -83,7 +83,11 @@ const BlobStorageNode: React.FC<BlobStorageNodeProps> = ({ data }) => {
               borderRadius: '3px',
             }}
           >
-            Object {obj.id}
+            {
+              obj.data['id'] != null ? 
+              obj.data['id'] :
+              <p>Object {obj.id}</p>
+            }
           </div>
         ))}
         {storedObjects.length > maxDisplayCount && (
