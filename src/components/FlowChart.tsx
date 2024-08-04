@@ -11,6 +11,8 @@ import {
   Connection,
   Edge,
   Node,
+  Background,
+  BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -152,6 +154,7 @@ const FlowChart: React.FC = () => {
           fitView
         >
           <Controls />
+          <Background color='#ccc' variant={BackgroundVariant.Dots} />
         </ReactFlow>
       </div>
     </div>
