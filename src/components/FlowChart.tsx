@@ -135,6 +135,19 @@ const FlowChart: React.FC = () => {
                 },
               };
             }
+            if (node.type === 'dataNode') {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  executeChain:
+                    flowManager.currentExecutionIndex !== null &&
+                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                  setOutputData: flowManager.handleSetOutputData(node.id),
+                },
+              };
+            }
             return node;
           })}
           edges={edges}

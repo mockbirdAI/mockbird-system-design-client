@@ -71,7 +71,7 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
   const runFlow = useCallback(() => {
     const connectedNodeIds = findConnectedNodes('0'); // Find all nodes connected to the Start Node
     const order = nodes
-      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode'))
+      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type ==='dataNode'))
       .map((node) => node.id);
 
     setExecutionOrder(order);

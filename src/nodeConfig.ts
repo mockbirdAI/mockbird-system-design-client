@@ -1,6 +1,6 @@
 // src/nodeConfig.ts
 
-import { StartNode, CodeExecutionNode, SNSNode, BlobStorageNode, LLMNode } from '@/components/nodes';
+import { StartNode, CodeExecutionNode, SNSNode, BlobStorageNode, LLMNode, DataNode } from '@/components/nodes';
 import { NodeTypes } from '@xyflow/react';
 
 const nodeTypes: NodeTypes = {
@@ -8,7 +8,8 @@ const nodeTypes: NodeTypes = {
   codeExecutionNode: CodeExecutionNode,
   snsNode: SNSNode,
   blobStorageNode: BlobStorageNode,
-  llmNode: LLMNode
+  llmNode: LLMNode,
+  dataNode: DataNode
 };
 
 export default nodeTypes;

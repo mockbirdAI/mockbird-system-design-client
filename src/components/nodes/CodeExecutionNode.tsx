@@ -71,10 +71,10 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
     <div
       style={{
         padding: 10,
-        border: `2px solid ${isExecuting ? '#007bff' : '#ddd'}`,
+        border: `2px solid ${isExecuting ? '#007bff' : '#3559db'}`,
         borderRadius: 5,
         width: 300,
-        backgroundColor: isExecuting ? '#e7f1ff' : '#f7f7f7',
+        backgroundColor: isExecuting ? '#e7f1ff' : '#e3f2fd',
         transition: 'background-color 0.3s ease',
       }}
     >

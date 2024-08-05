@@ -22,9 +22,17 @@ const LLMNode: React.FC<LLMNodeProps> = ({ data }) => {
     try {
       setIsExecuting(true);
 
-      // Substitute the inputData into the prompt
-      const substitutedPrompt = prompt.replace('${input}', JSON.stringify(data.inputData));
+      let substitutedPrompt = prompt;
 
+      if (typeof data.inputData === 'object' && data.inputData !== null) {
+        // Replace ${input.property} for objects
+        substitutedPrompt = prompt.replace(/\${input\.(\w+)}/g, (_, prop) => {
+          return data.inputData[prop] !== undefined ? data.inputData[prop] : '';
+        });
+      } else {
+        // Replace ${input} for primitives
+        substitutedPrompt = prompt.replace(/\${input}/g, String(data.inputData));
+      }
       const response = await fetch(`https://mockbird-node-llm-function-app.azurewebsites.net/api/openAiRequest`, {
         method: 'POST',
         headers: {
@@ -61,10 +69,10 @@ const LLMNode: React.FC<LLMNodeProps> = ({ data }) => {
     <div
       style={{
         padding: 10,
-        border: `2px solid ${isExecuting ? '#007bff' : '#ddd'}`,
+        border: `2px solid ${isExecuting ? '#007bff' : '#c04bfa'}`,
         borderRadius: 5,
         width: 300,
-        backgroundColor: isExecuting ? '#e7f1ff' : '#f7f7f7',
+        backgroundColor: isExecuting ? '#e7f1ff' : '#e9c0fc',
         transition: 'background-color 0.3s ease',
       }}
     >

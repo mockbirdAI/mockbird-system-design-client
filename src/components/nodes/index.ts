@@ -5,3 +5,4 @@ export { default as CodeExecutionNode } from './CodeExecutionNode';
 export { default as SNSNode } from './SNSNode';
 export { default as BlobStorageNode } from './BlobStorageNode';
 export { default as LLMNode } from './LLMNode';
+export { default as DataNode } from './DataNode'

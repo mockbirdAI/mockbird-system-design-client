@@ -42,6 +42,8 @@ const getNodeColor = (type: string): string => {
       return '#f1f8e9';
     case 'blobStorageNode':
       return '#fff3e0';
+    case 'llmNode':
+      return '#e9c0fc'
     default:
       return '#f0f0f0';
   }
