@@ -12,10 +12,9 @@ interface StartNodeProps extends NodeProps {
 
 const StartNode: React.FC<StartNodeProps> = ({ data }) => {
   return (
-    <div style={{ padding: 10, border: '2px solid #4caf50', borderRadius: 5, width: 150, backgroundColor: '#e8f5e9' }}>
-      <strong>Start Node</strong>
-      <button onClick={data.runFlow} style={{ marginTop: 10, cursor: 'pointer', padding: '5px 10px' }}>
-        Start
+    <div style={{ display: 'flex', padding: 20, border: '2px solid #4caf50', borderRadius: 5, width: 150, backgroundColor: '#e8f5e9', justifyContent: 'center' }}>
+      <button onClick={data.runFlow} style={{ cursor: 'pointer' }}>
+        <strong>Start Node</strong>
       </button>
       <Handle type="source" position={Position.Bottom} />
     </div>

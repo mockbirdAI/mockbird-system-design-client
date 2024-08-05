@@ -29,29 +29,6 @@ const initialNodes: Node[] = [
     data: { label: 'Start Node', runFlow: () => {} },
     position: { x: 250, y: 5 },
   },
-  {
-    id: '1',
-    type: 'codeExecutionNode',
-    data: {
-      label: 'Code Execution Node 1',
-      inputData: null,
-      setOutputData: (data: any) => {},
-      executeChain: false,
-      onExecutionComplete: () => {},
-    },
-    position: { x: 250, y: 100 },
-  },
-  {
-    id: 'blob',
-    type: 'blobStorageNode',
-    data: {
-      label: 'Blob Storage Node',
-      inputData: null,
-      executeChain: false,
-      onExecutionComplete: () => {},
-    },
-    position: { x: 250, y: 200 },
-  },
 ];
 
 let id = 4;
@@ -92,7 +69,7 @@ const FlowChart: React.FC = () => {
         id: getId(),
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label: `${type}` },
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -137,6 +114,20 @@ const FlowChart: React.FC = () => {
                   ...node.data,
                   inputData: flowManager.getNodeData(node.id)[0],
                   setOutputData: flowManager.handleSetOutputData(node.id), // Ensure setOutputData is set
+                  executeChain:
+                    flowManager.currentExecutionIndex !== null &&
+                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                },
+              };
+            }
+            if (node.type === 'llmNode') {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  inputData: flowManager.getNodeData(node.id)[0],
+                  setOutputData: flowManager.handleSetOutputData(node.id),
                   executeChain:
                     flowManager.currentExecutionIndex !== null &&
                     flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
