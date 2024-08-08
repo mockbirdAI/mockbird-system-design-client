@@ -173,7 +173,7 @@ const FlowChart: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  runFlow: flowManager.runFlow,
+                  runFlow: () => flowManager.runFlow(node.id),
                 },
               };
             }

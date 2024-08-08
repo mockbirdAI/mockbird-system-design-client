@@ -1,6 +1,6 @@
 // src/hooks/useFlowManager.ts
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 
 export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
@@ -17,6 +17,10 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
     },
     [nodes]
   );
+
+  useEffect(() => {
+    console.log(nodes);
+  })
 
   const getNodeData = useCallback(
     (nodeId: string) => {
@@ -68,20 +72,23 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
     [edges]
   );
 
-  const runFlow = useCallback(() => {
-    const connectedNodeIds = findConnectedNodes('0'); // Find all nodes connected to the Start Node
-    const order = nodes
-      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type ==='dataNode'))
-      .map((node) => node.id);
+  const runFlow = useCallback(
+    (startNodeId: string = '0') => {
+      const connectedNodeIds = findConnectedNodes(startNodeId); // Find all nodes connected to the starting node
+      const order = nodes
+        .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type === 'dataNode'))
+        .map((node) => node.id);
 
-    setExecutionOrder(order);
+      setExecutionOrder(order);
 
-    if (order.length > 0) {
-      setCurrentExecutionIndex(0);
-      updateNodeData(order[0], { executeChain: true });
-    }
-    console.log(connectedNodeIds);
-  }, [nodes, findConnectedNodes, updateNodeData]);
+      if (order.length > 0) {
+        setCurrentExecutionIndex(0);
+        updateNodeData(order[0], { executeChain: true });
+      }
+      console.log(connectedNodeIds);
+    },
+    [nodes, findConnectedNodes, updateNodeData]
+  );
 
   const handleExecutionComplete = useCallback(
     (nodeId: string) => {

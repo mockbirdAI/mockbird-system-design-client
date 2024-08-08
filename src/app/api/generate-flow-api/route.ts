@@ -10,7 +10,7 @@ type ResponseData = {
 const defaultPrompt = `
 Generate a flowchart in JSON format for a system design use case. The flowchart should include the following node types:
 - startNode: The starting point of the flowchart.
-- codeExecutionNode: A node that executes a piece of code. It should include a "code" property with JavaScript code.
+- codeExecutionNode: A node that executes a piece of code. It should include a "code" property with JavaScript code. If you need to refernece input from the node above, use the variable "input".
 - llmNode: A node that sends a query to a language model. It should include a "prompt" property with the query text.
 - dataNode: A node that holds static data. It should include a "jsonData" property with JSON data.
 - blobStorageNode: A node that stores data in blob storage.
@@ -69,7 +69,7 @@ Example JSON output:
   ]
 }
 
-Generate a flowchart for the following user inputed case, return ONLY the JSON.
+Generate a flowchart for the following user-inputted case. Return ONLY the JSON.
 
 Here is the user prompt:
 
