@@ -20,10 +20,11 @@ import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 import nodeTypes from '../nodeConfig';
-import { useFlowManager } from '../hooks/useFlowManager';
+import { useFlowManager } from '@/app/hooks/useFlowManager';
 import { serializeDiagram, deserializeDiagram } from '../utils/diagramUtils';
 
 import './main.css';
+import GenerateFlowchart from '@/components/GenerateFlowChart';
 
 
 const flowKey = 'example-flow';
@@ -137,6 +138,12 @@ const FlowChart: React.FC = () => {
     [screenToFlowPosition]
   );
 
+  const addNodesAndEdges = (newNodes: Node[], newEdges: Edge[]) => {
+
+    setNodes((nds) => nds.concat(newNodes));
+    setEdges((eds) => eds.concat(newEdges));
+  };
+
 
   return (
     <div className="dndflow h-screen w-screen" style={{ display: 'flex' }}>
@@ -233,6 +240,7 @@ const FlowChart: React.FC = () => {
             <button onClick={onRestore}>restore</button>
           </Panel>
         </ReactFlow>
+        <GenerateFlowchart addNodesAndEdges={addNodesAndEdges} />
       </div>
     </div>
   );

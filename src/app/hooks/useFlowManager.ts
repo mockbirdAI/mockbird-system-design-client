@@ -1,21 +1,26 @@
 // src/hooks/useFlowManager.ts
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 
-export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
+export const useFlowManager = (initialNodes: Node[], initialEdges: Edge[]) => {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [executionOrder, setExecutionOrder] = useState<string[]>([]);
   const [currentExecutionIndex, setCurrentExecutionIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    console.log('Nodes:', nodes);
+    console.log('Edges:', edges);
+  }, [nodes, edges]);
+
   const updateNodeData = useCallback(
     (nodeId: string, newData: any) => {
-      nodes.forEach((node) => {
-        if (node.id === nodeId) {
-          node.data = { ...node.data, ...newData };
-        }
-      });
+      setNodes((prevNodes) =>
+        prevNodes.map((node) => (node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node))
+      );
     },
-    [nodes]
+    []
   );
 
   const getNodeData = useCallback(
@@ -42,7 +47,7 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
         }
       });
     },
-    [edges, updateNodeData]
+    [edges, nodes, updateNodeData]
   );
 
   const findConnectedNodes = useCallback(
@@ -71,7 +76,7 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
   const runFlow = useCallback(() => {
     const connectedNodeIds = findConnectedNodes('0'); // Find all nodes connected to the Start Node
     const order = nodes
-      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type ==='dataNode'))
+      .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type === 'dataNode'))
       .map((node) => node.id);
 
     setExecutionOrder(order);
@@ -98,6 +103,11 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
     [executionOrder, updateNodeData]
   );
 
+  const addNodesAndEdges = (newNodes: Node[], newEdges: Edge[]) => {
+    setNodes((prevNodes) => [...prevNodes, ...newNodes]);
+    setEdges((prevEdges) => [...prevEdges, ...newEdges]);
+  };
+
   return {
     runFlow,
     handleSetOutputData,
@@ -105,5 +115,8 @@ export const useFlowManager = (nodes: Node[], edges: Edge[]) => {
     getNodeData,
     currentExecutionIndex,
     executionOrder,
+    nodes,
+    edges,
+    addNodesAndEdges
   };
 };
