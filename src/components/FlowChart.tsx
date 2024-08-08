@@ -1,6 +1,6 @@
 // src/components/FlowChart.tsx
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -13,14 +13,20 @@ import {
   Node,
   Background,
   BackgroundVariant,
+  ReactFlowInstance,
+  Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 import nodeTypes from '../nodeConfig';
 import { useFlowManager } from '../hooks/useFlowManager';
+import { serializeDiagram, deserializeDiagram } from '../utils/diagramUtils';
 
 import './main.css';
+
+
+const flowKey = 'example-flow';
 
 const initialNodes: Node[] = [
   {
@@ -38,13 +44,67 @@ const FlowChart: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const { screenToFlowPosition } = useReactFlow();
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
+  const { screenToFlowPosition, setViewport } = useReactFlow();
   const flowManager = useFlowManager(nodes, edges);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
     []
   );
+
+  const handleSetCode = (id: string) => (code: string) => {
+    setNodes((nds) => 
+      nds.map((node) => 
+        node.id === id 
+          ? { ...node, data: { ...node.data, code } } 
+          : node
+      )
+    );
+  };
+
+  const handleSetPrompt = (id: string) => (prompt: string) => {
+    setNodes((nds) => 
+      nds.map((node) => 
+        node.id === id 
+          ? { ...node, data: { ...node.data, prompt } } 
+          : node
+      )
+    );
+  };
+
+  const handleSetJsonData = (id: string) => (jsonData: string) => {
+    setNodes((nds) => 
+      nds.map((node) => 
+        node.id === id 
+          ? { ...node, data: { ...node.data, jsonData } } 
+          : node
+      )
+    );
+  };
+
+  const onSave = useCallback(() => {
+    if (rfInstance) {
+      const flow = rfInstance.toObject();
+      localStorage.setItem(flowKey, JSON.stringify(flow));
+    }
+    console.log(rfInstance?.toObject());
+  }, [rfInstance]);
+
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem(flowKey) ?? '{}');
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+        setNodes(flow.nodes || []);
+        setEdges(flow.edges || []);
+        setViewport({ x, y, zoom });
+      }
+    };
+
+    restoreFlow();
+  }, [setNodes, setViewport]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -77,6 +137,7 @@ const FlowChart: React.FC = () => {
     [screenToFlowPosition]
   );
 
+
   return (
     <div className="dndflow h-screen w-screen" style={{ display: 'flex' }}>
       <Sidebar />
@@ -95,6 +156,8 @@ const FlowChart: React.FC = () => {
                     flowManager.currentExecutionIndex !== null &&
                     flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
                   onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                  code: node.data.code,
+                  setCode: handleSetCode(node.id),
                 },
               };
             }
@@ -132,6 +195,8 @@ const FlowChart: React.FC = () => {
                     flowManager.currentExecutionIndex !== null &&
                     flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
                   onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                  prompt: node.data.prompt,
+                  setPrompt: handleSetPrompt(node.id)
                 },
               };
             }
@@ -145,6 +210,8 @@ const FlowChart: React.FC = () => {
                     flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
                   onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
                   setOutputData: flowManager.handleSetOutputData(node.id),
+                  jsonData: node.data.jsonData,
+                  setJsonData: handleSetJsonData(node.id)
                 },
               };
             }
@@ -153,6 +220,7 @@ const FlowChart: React.FC = () => {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onInit={setRfInstance}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -160,6 +228,10 @@ const FlowChart: React.FC = () => {
         >
           <Controls />
           <Background color='#ccc' variant={BackgroundVariant.Dots} />
+          <Panel position="top-right">
+            <button onClick={onSave}>save</button>
+            <button onClick={onRestore}>restore</button>
+          </Panel>
         </ReactFlow>
       </div>
     </div>

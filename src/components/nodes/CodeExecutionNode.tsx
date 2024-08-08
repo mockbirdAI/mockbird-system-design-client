@@ -13,11 +13,12 @@ interface CodeExecutionNodeProps extends NodeProps {
     setOutputData: (data: any) => void;
     executeChain: boolean;
     onExecutionComplete: () => void;
+    code?: string;
+    setCode: (code: string) => void;
   };
 }
 
 const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
-  const [code, setCode] = useState('// Write your code here');
   const [output, setOutput] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -28,7 +29,7 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
       setIsExecuting(true);
       const input = data.inputData;
       console.log('Input received:', input);
-      const result = new Function('input', code)(input);
+      const result = new Function('input', data.code ?? "")(input);
       setOutput(result?.toString());
       data.setOutputData(result);
     } catch (error: any) {
@@ -38,7 +39,7 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
         setIsExecuting(false);
       }, 1000); // 1-second delay for visual effect
     }
-  }, [code, data]);
+  }, [data.code, data]);
 
   // Function to execute code as part of the chain
   const executeChainCode = useCallback(() => {
@@ -46,7 +47,7 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
       setIsExecuting(true);
       const input = data.inputData;
       console.log('Input received:', input);
-      const result = new Function('input', code)(input);
+      const result = new Function('input', data.code ?? "")(input);
       setOutput(result?.toString());
       data.setOutputData(result);
     } catch (error: any) {
@@ -57,7 +58,7 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
         data.onExecutionComplete();
       }, 1000); // 1-second delay for visual effect
     }
-  }, [code, data]);
+  }, [data.code, data]);
 
   const toggleEditor = () => setShowEditor((prev) => !prev);
 
@@ -87,11 +88,11 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
       {showEditor && (
         <div style={{ marginBottom: 10 }}>
           <CodeMirror
-            value={code}
+            value={data.code ?? '// Write your code here'}
             height="150px"
             theme={oneDark}
             extensions={[javascript()]}
-            onChange={(value) => setCode(value)}
+            onChange={(value) => data.setCode(value)}
             style={{ marginBottom: 10, borderRadius: 5 }}
           />
           <button onClick={executeCode} style={{ padding: '5px 10px', cursor: 'pointer' }}>

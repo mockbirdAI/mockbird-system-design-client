@@ -9,11 +9,12 @@ interface DataNodeProps extends NodeProps {
     executeChain: boolean;
     onExecutionComplete: () => void;
     setOutputData: (data: any) => void;
+    jsonData?: string;
+    setJsonData: (jsonData: string) => void;
   };
 }
 
 const DataNode: React.FC<DataNodeProps> = ({ data }) => {
-  const [jsonData, setJsonData] = useState('{}');
   const [parsedData, setParsedData] = useState<any>(null);
   const [isValid, setIsValid] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -21,7 +22,7 @@ const DataNode: React.FC<DataNodeProps> = ({ data }) => {
   // Parse JSON data and set it as output
   const parseAndSetData = useCallback(() => {
     try {
-      const parsed = JSON.parse(jsonData);
+      const parsed = JSON.parse(data.jsonData ?? '{}');
       setParsedData(parsed);
       setIsValid(true);
       return parsed;
@@ -30,7 +31,7 @@ const DataNode: React.FC<DataNodeProps> = ({ data }) => {
       setIsValid(false);
       return null;
     }
-  }, [jsonData]);
+  }, [data.jsonData]);
 
   const executeNode = useCallback(() => {
     setIsExecuting(true);
@@ -63,8 +64,8 @@ const DataNode: React.FC<DataNodeProps> = ({ data }) => {
     >
       <strong>{data.label}</strong>
       <textarea
-        value={jsonData}
-        onChange={(e) => setJsonData(e.target.value)}
+        value={data.jsonData}
+        onChange={(e) => data.setJsonData(e.target.value)}
         placeholder="Enter JSON data here..."
         style={{ width: '100%', marginTop: 10, height: 100 }}
       />

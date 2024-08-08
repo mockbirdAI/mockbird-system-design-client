@@ -10,11 +10,12 @@ interface LLMNodeProps extends NodeProps {
     setOutputData: (data: any) => void;
     executeChain: boolean;
     onExecutionComplete: () => void;
+    prompt?: string;
+    setPrompt: (prompt: string) => void;
   };
 }
 
 const LLMNode: React.FC<LLMNodeProps> = ({ data }) => {
-  const [prompt, setPrompt] = useState('');
   const [output, setOutput] = useState<string | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
 
@@ -22,16 +23,16 @@ const LLMNode: React.FC<LLMNodeProps> = ({ data }) => {
     try {
       setIsExecuting(true);
 
-      let substitutedPrompt = prompt;
+      let substitutedPrompt = data.prompt;
 
       if (typeof data.inputData === 'object' && data.inputData !== null) {
         // Replace ${input.property} for objects
-        substitutedPrompt = prompt.replace(/\${input\.(\w+)}/g, (_, prop) => {
+        substitutedPrompt = data.prompt?.replace(/\${input\.(\w+)}/g, (_, prop) => {
           return data.inputData[prop] !== undefined ? data.inputData[prop] : '';
         });
       } else {
         // Replace ${input} for primitives
-        substitutedPrompt = prompt.replace(/\${input}/g, String(data.inputData));
+        substitutedPrompt = data.prompt?.replace(/\${input}/g, String(data.inputData));
       }
       const response = await fetch(`https://mockbird-node-llm-function-app.azurewebsites.net/api/openAiRequest`, {
         method: 'POST',
@@ -78,8 +79,8 @@ const LLMNode: React.FC<LLMNodeProps> = ({ data }) => {
     >
       <strong>{data.label}</strong>
       <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
+        value={data.prompt}
+        onChange={(e) => data.setPrompt(e.target.value)}
         placeholder="Enter your prompt here (use ${input} to include input data)..."
         style={{ width: '100%', marginTop: 10 }}
       />
