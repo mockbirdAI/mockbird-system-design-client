@@ -29,17 +29,10 @@ import GenerateFlowchart from '@/components/GenerateFlowChart';
 
 const flowKey = 'example-flow';
 
-const initialNodes: Node[] = [
-  {
-    id: '0',
-    type: 'startNode',
-    data: { label: 'Start Node', runFlow: () => {} },
-    position: { x: 250, y: 5 },
-  },
-];
+const initialNodes: Node[] = [];
 
-let id = 4;
-const getId = (): string => `dndnode_${id++}`;
+let id = 0;
+const getId = (): string => `${id++}`;
 
 const FlowChart: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
@@ -240,7 +233,7 @@ const FlowChart: React.FC = () => {
             <button onClick={onRestore}>restore</button>
           </Panel>
         </ReactFlow>
-        <GenerateFlowchart addNodesAndEdges={addNodesAndEdges} />
+        <GenerateFlowchart addNodesAndEdges={addNodesAndEdges} currentDiagram={{ nodes, edges }} />
       </div>
     </div>
   );

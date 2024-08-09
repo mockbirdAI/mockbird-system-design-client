@@ -7,13 +7,13 @@ type ResponseData = {
   error?: string;
 };
 
-const generateFlowchart = async (useCase: string) => {
+const generateFlowchart = async (useCase: string, currentDiagram: string) => {
   const response = await fetch(`https://mockbird-node-llm-function-app.azurewebsites.net/api/generateFlowDiagram`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ useCase: useCase }),
+    body: JSON.stringify({ useCase: useCase, currentDiagram: currentDiagram }),
   });
 
   if (!response.ok) {
@@ -38,13 +38,13 @@ const generateFlowchart = async (useCase: string) => {
 
 export async function POST(req: NextRequest) {
   try {
-    const { useCase } = await req.json();
+    const { useCase, currentDiagram } = await req.json();
 
     if (!useCase) {
       return NextResponse.json({ error: 'Use case is required.' }, { status: 400 });
     }
 
-    const generatedFlowchart = await generateFlowchart(useCase);
+    const generatedFlowchart = await generateFlowchart(useCase, currentDiagram);
     return NextResponse.json(generatedFlowchart, { status: 200 });
   } catch (error: any) {
     console.error('Error generating flowchart:', error);

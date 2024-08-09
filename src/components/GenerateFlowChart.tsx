@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const GenerateFlowchart: React.FC<{ addNodesAndEdges: (nodes: any[], edges: any[]) => void }> = ({ addNodesAndEdges }) => {
+const GenerateFlowchart: React.FC<{ addNodesAndEdges: (nodes: any[], edges: any[]) => void, currentDiagram: any }> = ({ addNodesAndEdges, currentDiagram }) => {
   const [useCase, setUseCase] = useState('');
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +13,7 @@ const GenerateFlowchart: React.FC<{ addNodesAndEdges: (nodes: any[], edges: any[
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ useCase }),
+        body: JSON.stringify({ useCase, currentDiagram }),
       });
 
       if (!response.ok) {
