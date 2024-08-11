@@ -27,21 +27,24 @@ import './main.css';
 import GenerateFlowchart from '@/components/GenerateFlowChart';
 import useStore from '@/utils/store';
 
+interface FlowChartProps {
+  diagramId?: string,
+  initialNodes: Node[],
+  initialEdges: Edge[]
+}
 
 const flowKey = 'example-flow';
-
-const initialNodes: Node[] = [];
 
 let id = 0;
 const getId = (): string => `${id++}`;
 
-const FlowChart: React.FC = () => {
+const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialEdges }) => {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const { screenToFlowPosition, setViewport } = useReactFlow();
 
   const {
-    liveblocks: { enterRoom, leaveRoom, isStorageLoading },
+    liveblocks: { enterRoom, leaveRoom, isStorageLoading, room },
     nodes,
     edges,
     setNodes,
@@ -64,11 +67,21 @@ const FlowChart: React.FC = () => {
     updateNodeData
   } = useStore();
 
-  // const flowManager = useFlowManager(nodes, edges);
+  const enteredRoomRef = useRef(false); // Track if initialization has occurred
+  useEffect(() => {
+    if (!isStorageLoading && nodes.length === 0 && edges.length === 0) {
+      // Only set initial nodes and edges if the room is empty
+      setNodes(initialNodes);
+      setEdges(initialEdges);
+    }
+  }, [isStorageLoading, nodes, edges, setNodes, setEdges, initialNodes, initialEdges]);
 
   useEffect(() => {
-    enterRoom('my-room');
-  }, [enterRoom]);
+    if (!room?.id && !enteredRoomRef.current) {
+      enterRoom(diagramId!)
+      enteredRoomRef.current = true;
+    }
+  }, [])
 
   const onSave = useCallback(() => {
     if (rfInstance) {

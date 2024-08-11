@@ -1,29 +1,25 @@
-// src/App.tsx
+// app/page.tsx (Server Component)
 
-'use client'
-
-import React from 'react';
-import { ReactFlowProvider } from '@xyflow/react';
-import FlowChart from '@/components/FlowChart'
-import { useUser } from '@auth0/nextjs-auth0/client';
+import prisma from '@/utils/prisma';
+import { getSession } from '@auth0/nextjs-auth0';
+import Workspace from './Workspace';
 import { redirect } from 'next/navigation';
 
-const App: React.FC = () => {
-  const { user, error, isLoading } = useUser();
+async function getDiagrams(userId: string) {
+  return await prisma.diagram.findMany({
+    where: { creatorUserId: userId },
+  });
+}
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>{error.message}</div>
-  
-  console.log(user);
-  if (!user) {
-    redirect('/api/auth/login');
+export default async function HomePage() {
+  const session = await getSession();
+
+  if (!session) {
+    // Redirect to login if not authenticated
+    redirect('/api/auth/login')
   }
 
-  return (
-    <ReactFlowProvider>
-      <FlowChart />
-    </ReactFlowProvider>
-  )
-};
+  const diagrams = await getDiagrams(session.user.sub);
 
-export default App;
+  return <Workspace diagrams={diagrams} />;
+}
