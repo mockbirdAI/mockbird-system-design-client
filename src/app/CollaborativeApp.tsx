@@ -12,9 +12,6 @@ export function CollaborativeApp() {
   const hasMoreUsers = users.length > 3;
   return (
     <main className="flex select-none place-content-end">
-        <div>
-          There are {users.length} other user(s) online
-        </div>
       <div className="flex pl-3">
         {users.slice(0, 3).map(({ connectionId, info }) => {
           return (

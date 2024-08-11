@@ -4,13 +4,13 @@
 
 import FlowChart from "@/components/FlowChart";
 
-interface DiagramsClientPros {
+interface DiagramsClientProps {
   diagramId: string;
   initialNodes: any[];
   initialEdges: any[];
 }
 
-export default function DiagramsClient({ diagramId, initialNodes, initialEdges }: DiagramsClientPros) {
+export default function DiagramsClient({ diagramId, initialNodes, initialEdges }: DiagramsClientProps) {
   return (
     <FlowChart diagramId={diagramId} initialNodes={initialNodes} initialEdges={initialEdges} />
   );

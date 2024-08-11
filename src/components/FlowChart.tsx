@@ -111,11 +111,15 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
   }, [isStorageLoading, nodes, edges, setNodes, setEdges, initialNodes, initialEdges]);
 
   useEffect(() => {
-    if (!room?.id && !enteredRoomRef.current) {
-      enterRoom(diagramId!)
-      enteredRoomRef.current = true;
+    if (!enteredRoomRef.current) {
+      if (!room?.id) {
+        if (room?.getOthers()) {
+          enterRoom(diagramId!);
+          enteredRoomRef.current = true;
+        }
+      }
     }
-  }, [])
+  }, [diagramId, room?.id, enterRoom]);
 
   const onSave = useCallback(() => {
     if (rfInstance) {
@@ -208,7 +212,7 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
 
   return (
     <div
-      className="dndflow h-screen w-screen" 
+      className="dndflow h-full w-full" 
       style={{ 
         display: 'flex', 
         cursor: "url(cursor.svg) 0 0, auto",
@@ -354,12 +358,12 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
           onDragOver={onDragOver}
           fitView
         >
-          <Controls />
+          <Controls position='top-left'/>
           <Background color='#ccc' variant={BackgroundVariant.Dots} />
-          <Panel position="top-right">
+          {/* <Panel position="top-right">
             <button onClick={onSave}>save</button>
             <button onClick={onRestore}>restore</button>
-          </Panel>
+          </Panel> */}
         </ReactFlow>
         <GenerateFlowchart addNodesAndEdges={addNodesAndEdges} currentDiagram={{ nodes, edges }} />
       </div>

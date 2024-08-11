@@ -1,10 +1,11 @@
-// app/page.tsx (Server Component)
+// app/[diagramId]/page.tsx (Server Component)
 
 import prisma from '@/utils/prisma';
 import { Room } from "@/app/Room";
 import { CollaborativeApp } from "@/app/CollaborativeApp";
-import DiagramsClient from '@/app/diagram/[diagramId]/DiagramsClient'
+import DiagramsClient from '@/app/diagram/[diagramId]/DiagramsClient';
 import { ReactFlowProvider } from "@xyflow/react";
+import EditableDiagramTitle from '@/components/EditableDiagramTitle';
 
 export default async function Page({ params }: { params: { diagramId: string } }) {
   
@@ -33,12 +34,21 @@ export default async function Page({ params }: { params: { diagramId: string } }
   }
 
   return (
-    <Room roomId={params.diagramId}>
-      <CollaborativeApp />
-      <ReactFlowProvider>
-        {/* Pass the fetched data to the client component */}
-        <DiagramsClient diagramId={params.diagramId} initialNodes={initialNodes} initialEdges={initialEdges} />
-      </ReactFlowProvider>
-    </Room>
+    <div className='h-screen w-screen'>
+      <Room roomId={params.diagramId}>
+        <div className='flex w-full justify-between p-4'>
+          {/* Pass the diagram data to EditableField */}
+          <EditableDiagramTitle diagramId={diagram.id} initialValue={diagram.title} field="title" />
+          <div>
+            <CollaborativeApp />
+          </div>
+        </div>
+        
+        <ReactFlowProvider>
+          <DiagramsClient diagramId={params.diagramId} initialNodes={initialNodes} initialEdges={initialEdges} />
+        </ReactFlowProvider>
+      </Room>
+    </div>
+    
   );
 }
