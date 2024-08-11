@@ -22,6 +22,7 @@ const BlobStorageNode: React.FC<BlobStorageNodeProps> = ({ data }) => {
   const maxDisplayCount = 5; // Maximum number of object IDs to display
 
   const storeObject = useCallback(() => {
+    console.log("INPUT", data.inputData)
     if (data.inputData) {
       setIsExecuting(true); // Start execution highlight
       const newObject = {
@@ -70,10 +71,9 @@ const BlobStorageNode: React.FC<BlobStorageNodeProps> = ({ data }) => {
     // Make the queryStorage function available for downstream nodes
     useEffect(() => {
       data.setOutputData({
-        queryStorage,
         storedObjects,
       });
-    }, [storedObjects, data]);
+    }, [storedObjects]);
 
   return (
     <div

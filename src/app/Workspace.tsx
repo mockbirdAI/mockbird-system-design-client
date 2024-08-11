@@ -25,8 +25,9 @@ export default function Workspace({ diagrams }: WorkspaceProps) {
       console.error('Failed to create a new diagram');
     }
   };
-  
 
+  console.log("diagrams", diagrams);
+  
   return (
     <div className="container mx-auto p-8 h-screen">
       <div className="flex justify-between items-center mb-6">

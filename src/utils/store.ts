@@ -94,7 +94,8 @@ const useStore = create<WithLiveblocks<FlowState>>()(
             );
             return { nodes: updatedNodes };
         });
-    },
+      },
+
       handleSetCode: (id: string) => (code: string) => {
         get().updateNodeData(id, { code });
       },

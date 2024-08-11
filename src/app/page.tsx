@@ -19,7 +19,7 @@ export default async function HomePage() {
     redirect('/api/auth/login')
   }
 
-  const diagrams = await getDiagrams(session.user.sub);
+  const diagrams = await getDiagrams(session.user.id);
 
   return <Workspace diagrams={diagrams} />;
 }

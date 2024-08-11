@@ -17,6 +17,8 @@ import {
   Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import Cursor from './Cursor';
+import useInterval from '@/app/hooks/useInterval';
 
 import Sidebar from './Sidebar';
 import nodeTypes from '../nodeConfig';
@@ -26,6 +28,7 @@ import { serializeDiagram, deserializeDiagram } from '../utils/diagramUtils';
 import './main.css';
 import GenerateFlowchart from '@/components/GenerateFlowChart';
 import useStore from '@/utils/store';
+import { useBroadcastEvent, useMyPresence, useOthers } from '@liveblocks/react';
 
 interface FlowChartProps {
   diagramId?: string,
@@ -38,7 +41,38 @@ const flowKey = 'example-flow';
 let id = 0;
 const getId = (): string => `${id++}`;
 
+const COLORS = ["#DC2626", "#D97706", "#059669", "#7C3AED", "#DB2777"];
+
+enum CursorMode {
+  Hidden,
+  Chat,
+  ReactionSelector,
+  Reaction,
+}
+
+type CursorState =
+  | {
+      mode: CursorMode.Hidden;
+    }
+  | {
+      mode: CursorMode.Chat;
+      message: string;
+      previousMessage: string | null;
+    }
+  | {
+      mode: CursorMode.ReactionSelector;
+    }
+  | {
+      mode: CursorMode.Reaction;
+      reaction: string;
+      isPressed: boolean;
+    };
+    
 const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialEdges }) => {
+  const others = useOthers();
+  const [{ cursor }, updateMyPresence] = useMyPresence();
+  const broadcast = useBroadcastEvent();
+  const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const { screenToFlowPosition, setViewport } = useReactFlow();
@@ -173,9 +207,69 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
 
 
   return (
-    <div className="dndflow h-screen w-screen" style={{ display: 'flex' }}>
+    <div
+      className="dndflow h-screen w-screen" 
+      style={{ 
+        display: 'flex', 
+        cursor: "url(cursor.svg) 0 0, auto",
+      }}
+      onPointerMove={(event) => {
+        event.preventDefault();
+        if (cursor == null || state.mode !== CursorMode.ReactionSelector) {
+          updateMyPresence({
+            cursor: {
+              x: Math.round(event.clientX),
+              y: Math.round(event.clientY),
+            },
+          });
+        }
+      }}
+      onPointerLeave={() => {
+        setState({
+          mode: CursorMode.Hidden,
+        });
+        updateMyPresence({
+          cursor: null,
+        });
+      }}
+      onPointerDown={(event) => {
+        updateMyPresence({
+          cursor: {
+            x: Math.round(event.clientX),
+            y: Math.round(event.clientY),
+          },
+        });
+        setState((state) =>
+          state.mode === CursorMode.Reaction
+            ? { ...state, isPressed: true }
+            : state
+        );
+      }}
+      onPointerUp={() => {
+        setState((state) =>
+          state.mode === CursorMode.Reaction
+            ? { ...state, isPressed: false }
+            : state
+        );
+      }}
+    >
       <Sidebar />
       <div className="reactflow-wrapper" ref={reactFlowWrapper} style={{ flex: 1 }}>
+        {others.map(({ connectionId, presence }) => {
+          if (presence == null || !presence.cursor) {
+            return null;
+          }
+
+          return (
+            <Cursor
+              key={connectionId}
+              color={COLORS[connectionId % COLORS.length]}
+              x={presence.cursor.x}
+              y={presence.cursor.y}
+              message={presence.message}
+            />
+          );
+        })}
         <ReactFlow
           nodeTypes={nodeTypes}
           nodes={nodes.map((node) => {
