@@ -18,8 +18,7 @@ export default async function HomePage() {
     // Redirect to login if not authenticated
     redirect('/api/auth/login')
   }
-
-  const diagrams = await getDiagrams(session.user.id);
+  const diagrams = await getDiagrams(session.user.sid);
 
   return <Workspace diagrams={diagrams} />;
 }

@@ -16,6 +16,7 @@ const afterCallback = async (req: NextApiRequest, session: any, state: any) => {
       if (!existingUser) {
         await prisma.user.create({
           data: {
+            id: session.user.sid,
             email: session.user.email,
             name: session.user.given_name + ' ' + session.user.family_name,
             profilePicture: session.user.picture
