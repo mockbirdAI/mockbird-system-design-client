@@ -376,6 +376,35 @@
   dependencies:
     "@lezer/common" "^1.0.0"
 
+"@liveblocks/client@2.4.0", "@liveblocks/client@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@liveblocks/client/-/client-2.4.0.tgz#20dd80e6dc42cad372710350ee0f95a3b0e01d92"
+  integrity sha512-R1r22QrpxMYSgbUv8UWAQgHioMwXThkgUtk8MVsKfHFUB9lY57igVeNgmx7g4sz5D2lEspsK62fHPZrRy4wTnw==
+  dependencies:
+    "@liveblocks/core" "2.4.0"
+
+"@liveblocks/core@2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@liveblocks/core/-/core-2.4.0.tgz#fbf60ccc395314f13e3333c660993163d297211a"
+  integrity sha512-QECTaY9Bku3hQwZQwTbZEv+wrnuoemYYKy8fdgwJMNwLUn+MRsUHK/8vyE1ZqkBqbvo/eagRv8fiyZz2Qn3RRw==
+
+"@liveblocks/react@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@liveblocks/react/-/react-2.4.0.tgz#8b602050728d90a296310026a13ae70d830909f2"
+  integrity sha512-6FL+oSWZz5hcD8k1R0d9W/lVF2ZPm/fZOMMKV+sdZXtvhUjbdK1iBuPNxn9tyrhSZ9dO17D56nY/szo7Vsiw0Q==
+  dependencies:
+    "@liveblocks/client" "2.4.0"
+    "@liveblocks/core" "2.4.0"
+    use-sync-external-store "^1.2.2"
+
+"@liveblocks/zustand@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@liveblocks/zustand/-/zustand-2.4.0.tgz#0b3f157e926b9a5d57ae8b45825260385a9ee7eb"
+  integrity sha512-7jdLmksvY5FUm71BMldkXbcEUDE28PrsRuW/oajcQfgNaUYDvlmJ4rfAC71dcoDAj4kIyFRzlzwjG+5JmQaeGQ==
+  dependencies:
+    "@liveblocks/client" "2.4.0"
+    "@liveblocks/core" "2.4.0"
+
 "@next/env@14.2.5":
   version "14.2.5"
   resolved "https://registry.yarnpkg.com/@next/env/-/env-14.2.5.tgz#1d9328ab828711d3517d0a1d505acb55e5ef7ad0"
@@ -3268,6 +3297,11 @@ use-sync-external-store@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
   integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
+
+use-sync-external-store@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.2.tgz#c3b6390f3a30eba13200d2302dcdf1e7b57b2ef9"
+  integrity sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==
 
 util-deprecate@^1.0.2:
   version "1.0.2"
