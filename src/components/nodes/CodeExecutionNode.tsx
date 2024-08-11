@@ -63,10 +63,10 @@ const CodeExecutionNode: React.FC<CodeExecutionNodeProps> = ({ data }) => {
   const toggleEditor = () => setShowEditor((prev) => !prev);
 
   useEffect(() => {
-    if (data.executeChain) {
-      executeChainCode(); // Execute code as part of the chain
+    if (data.executeChain && !isExecuting) {
+        executeChainCode(); // Execute code as part of the chain
     }
-  }, [data.executeChain, executeChainCode]);
+}, [data.executeChain, executeChainCode, isExecuting]);
 
   return (
     <div

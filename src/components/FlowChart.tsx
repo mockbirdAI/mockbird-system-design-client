@@ -25,6 +25,7 @@ import { serializeDiagram, deserializeDiagram } from '../utils/diagramUtils';
 
 import './main.css';
 import GenerateFlowchart from '@/components/GenerateFlowChart';
+import useStore from '@/utils/store';
 
 
 const flowKey = 'example-flow';
@@ -36,46 +37,38 @@ const getId = (): string => `${id++}`;
 
 const FlowChart: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement | null>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const { screenToFlowPosition, setViewport } = useReactFlow();
-  const flowManager = useFlowManager(nodes, edges);
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    []
-  );
+  const {
+    liveblocks: { enterRoom, leaveRoom, isStorageLoading },
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onDragOver,
+    onDrop,
+    addNodesAndEdges,
+    handleSetOutputData,
+    handleSetCode,
+    handleSetPrompt,
+    handleSetJsonData,
+    getNodeData,
+    currentExecutionIndex,
+    executionOrder,
+    setExecutionOrder,
+    setCurrentExecutionIndex,
+    updateNodeData
+  } = useStore();
 
-  const handleSetCode = (id: string) => (code: string) => {
-    setNodes((nds) => 
-      nds.map((node) => 
-        node.id === id 
-          ? { ...node, data: { ...node.data, code } } 
-          : node
-      )
-    );
-  };
+  // const flowManager = useFlowManager(nodes, edges);
 
-  const handleSetPrompt = (id: string) => (prompt: string) => {
-    setNodes((nds) => 
-      nds.map((node) => 
-        node.id === id 
-          ? { ...node, data: { ...node.data, prompt } } 
-          : node
-      )
-    );
-  };
-
-  const handleSetJsonData = (id: string) => (jsonData: string) => {
-    setNodes((nds) => 
-      nds.map((node) => 
-        node.id === id 
-          ? { ...node, data: { ...node.data, jsonData } } 
-          : node
-      )
-    );
-  };
+  useEffect(() => {
+    enterRoom('my-room');
+  }, [enterRoom]);
 
   const onSave = useCallback(() => {
     if (rfInstance) {
@@ -100,42 +93,70 @@ const FlowChart: React.FC = () => {
     restoreFlow();
   }, [setNodes, setViewport]);
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
 
-  const onDrop = useCallback(
+  const handleDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault();
-
-      const type = event.dataTransfer.getData('application/reactflow');
-
-      if (typeof type === 'undefined' || !type) {
-        return;
-      }
-
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      const newNode: Node = {
-        id: getId(),
-        type,
-        position,
-        data: { label: `${type}` },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
+      onDrop(event, screenToFlowPosition, getId);
     },
-    [screenToFlowPosition]
+    [onDrop, screenToFlowPosition, getId]
   );
 
-  const addNodesAndEdges = (newNodes: Node[], newEdges: Edge[]) => {
+  const findConnectedNodes = useCallback(
+    (startNodeId: string) => {
+      const visited = new Set<string>();
+      const stack = [startNodeId];
 
-    setNodes((nds) => nds.concat(newNodes));
-    setEdges((eds) => eds.concat(newEdges));
-  };
+      while (stack.length > 0) {
+        const currentNodeId = stack.pop();
+        if (currentNodeId && !visited.has(currentNodeId)) {
+          visited.add(currentNodeId);
+          const connectedEdges = edges.filter((edge) => edge.source === currentNodeId);
+          connectedEdges.forEach((edge) => {
+            if (!visited.has(edge.target)) {
+              stack.push(edge.target);
+            }
+          });
+        }
+      }
+
+      return Array.from(visited);
+    },
+    [edges]
+  );
+
+  const runFlow = useCallback(
+    (startNodeId: string = '0') => {
+      const connectedNodeIds = findConnectedNodes(startNodeId); // Find all nodes connected to the starting node
+      const order = nodes
+        .filter((node) => connectedNodeIds.includes(node.id) && (node.type === 'codeExecutionNode' || node.type === 'blobStorageNode' || node.type === 'llmNode' || node.type === 'dataNode'))
+        .map((node) => node.id);
+
+      setExecutionOrder(order);
+
+      if (order.length > 0) {
+        setCurrentExecutionIndex(0);
+        updateNodeData(order[0], { executeChain: true });
+      }
+      console.log(connectedNodeIds);
+    },
+    [nodes, findConnectedNodes, updateNodeData]
+  );
+
+  const handleExecutionComplete = useCallback(
+    (nodeId: string) => {
+      const index = executionOrder.indexOf(nodeId);
+      const nextNodeId = executionOrder[index + 1];
+
+      if (nextNodeId) {
+        setCurrentExecutionIndex(index + 1);
+        updateNodeData(nextNodeId, { executeChain: true });
+      } else {
+        setCurrentExecutionIndex(null); // End of chain
+      }
+    },
+    [executionOrder, updateNodeData]
+  );
+
 
 
   return (
@@ -150,12 +171,12 @@ const FlowChart: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  inputData: flowManager.getNodeData(node.id)[0],
-                  setOutputData: flowManager.handleSetOutputData(node.id),
+                  inputData: getNodeData(node.id)[0],
+                  setOutputData: handleSetOutputData(node.id),
                   executeChain:
-                    flowManager.currentExecutionIndex !== null &&
-                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
-                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                    currentExecutionIndex !== null &&
+                    executionOrder[currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => handleExecutionComplete(node.id),
                   code: node.data.code,
                   setCode: handleSetCode(node.id),
                 },
@@ -166,7 +187,7 @@ const FlowChart: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  runFlow: () => flowManager.runFlow(node.id),
+                  runFlow: () => runFlow(node.id),
                 },
               };
             }
@@ -175,12 +196,12 @@ const FlowChart: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  inputData: flowManager.getNodeData(node.id)[0],
-                  setOutputData: flowManager.handleSetOutputData(node.id), // Ensure setOutputData is set
+                  inputData: getNodeData(node.id)[0],
+                  setOutputData: handleSetOutputData(node.id), // Ensure setOutputData is set
                   executeChain:
-                    flowManager.currentExecutionIndex !== null &&
-                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
-                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                    currentExecutionIndex !== null &&
+                    executionOrder[currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => handleExecutionComplete(node.id),
                 },
               };
             }
@@ -189,12 +210,12 @@ const FlowChart: React.FC = () => {
                 ...node,
                 data: {
                   ...node.data,
-                  inputData: flowManager.getNodeData(node.id)[0],
-                  setOutputData: flowManager.handleSetOutputData(node.id),
+                  inputData: getNodeData(node.id)[0],
+                  setOutputData: handleSetOutputData(node.id),
                   executeChain:
-                    flowManager.currentExecutionIndex !== null &&
-                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
-                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
+                    currentExecutionIndex !== null &&
+                    executionOrder[currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => handleExecutionComplete(node.id),
                   prompt: node.data.prompt,
                   setPrompt: handleSetPrompt(node.id)
                 },
@@ -206,10 +227,10 @@ const FlowChart: React.FC = () => {
                 data: {
                   ...node.data,
                   executeChain:
-                    flowManager.currentExecutionIndex !== null &&
-                    flowManager.executionOrder[flowManager.currentExecutionIndex] === node.id,
-                  onExecutionComplete: () => flowManager.handleExecutionComplete(node.id),
-                  setOutputData: flowManager.handleSetOutputData(node.id),
+                    currentExecutionIndex !== null &&
+                    executionOrder[currentExecutionIndex] === node.id,
+                  onExecutionComplete: () => handleExecutionComplete(node.id),
+                  setOutputData: handleSetOutputData(node.id),
                   jsonData: node.data.jsonData,
                   setJsonData: handleSetJsonData(node.id)
                 },
@@ -222,7 +243,7 @@ const FlowChart: React.FC = () => {
           onEdgesChange={onEdgesChange}
           onInit={setRfInstance}
           onConnect={onConnect}
-          onDrop={onDrop}
+          onDrop={handleDrop}
           onDragOver={onDragOver}
           fitView
         >
