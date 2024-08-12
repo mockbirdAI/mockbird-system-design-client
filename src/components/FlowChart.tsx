@@ -105,47 +105,53 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
   } = useStore();
 
   const enteredRoomRef = useRef(false); // Track if initialization has occurred
-  useEffect(() => {
-    if (!isStorageLoading && nodes.length === 0 && edges.length === 0) {
-      // Only set initial nodes and edges if the room is empty
-      setNodes(initialNodes);
-      setEdges(initialEdges);
-    }
-  }, [isStorageLoading, nodes, edges, setNodes, setEdges, initialNodes, initialEdges]);
+  // useEffect(() => {
+  //   if (!isStorageLoading && nodes.length === 0 && edges.length === 0) {
+  //     // Only set initial nodes and edges if the room is empty
+  //     setNodes(initialNodes);
+  //     setEdges(initialEdges);
+  //   }
+  // }, [isStorageLoading, nodes, edges, setNodes, setEdges, initialNodes, initialEdges]);
 
   useEffect(() => {
     if (!enteredRoomRef.current) {
-      if (!room?.id) {
-        if (room?.getOthers()) {
-          enterRoom(diagramId!);
-          enteredRoomRef.current = true;
-        }
-      }
+      enterRoom(diagramId!);
+      enteredRoomRef.current = true;
+      console.log("Entered room:", diagramId);
     }
-  }, [diagramId, room?.id, enterRoom]);
 
-  const onSave = useCallback(() => {
-    if (rfInstance) {
-      const flow = rfInstance.toObject();
-      localStorage.setItem(flowKey, JSON.stringify(flow));
-    }
-    console.log(rfInstance?.toObject());
-  }, [rfInstance]);
-
-  const onRestore = useCallback(() => {
-    const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem(flowKey) ?? '{}');
-
-      if (flow) {
-        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
-        setViewport({ x, y, zoom });
+    return () => {
+      if (enteredRoomRef.current) {
+        leaveRoom();
+        console.log("Left room:", diagramId);
+        enteredRoomRef.current = false;
       }
     };
+  }, [diagramId, enterRoom, leaveRoom]);
 
-    restoreFlow();
-  }, [setNodes, setViewport]);
+
+  // const onSave = useCallback(() => {
+  //   if (rfInstance) {
+  //     const flow = rfInstance.toObject();
+  //     localStorage.setItem(flowKey, JSON.stringify(flow));
+  //   }
+  //   console.log(rfInstance?.toObject());
+  // }, [rfInstance]);
+
+  // const onRestore = useCallback(() => {
+  //   const restoreFlow = async () => {
+  //     const flow = JSON.parse(localStorage.getItem(flowKey) ?? '{}');
+
+  //     if (flow) {
+  //       const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+  //       setNodes(flow.nodes || []);
+  //       setEdges(flow.edges || []);
+  //       setViewport({ x, y, zoom });
+  //     }
+  //   };
+
+  //   restoreFlow();
+  // }, [setNodes, setViewport]);
 
 
   const handleDrop = useCallback(

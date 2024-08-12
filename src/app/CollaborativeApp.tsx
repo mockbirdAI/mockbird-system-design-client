@@ -11,13 +11,17 @@ export function CollaborativeApp() {
   const { user, error, isLoading } = useUser();
   const hasMoreUsers = users.length > 3;
   return (
-    <main className="flex select-none place-content-end" style={{ backgroundColor: '#f0f0f0' }}>
+    <main className="flex select-none place-content-end">
       <div className="flex pl-3">
-        {users.slice(0, 3).map(({ connectionId, info }) => {
-          return (
-            <Avatar key={connectionId} src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAtgMBIgACEQEDEQH/xAAXAAEBAQEAAAAAAAAAAAAAAAAAAQcC/8QAFxABAQEBAAAAAAAAAAAAAAAAAAFBEf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AxAAAAAAAAFEVARUAVFAAAioAqAAAAACAKACAKKIqKgAAACiKggqKAAAAAAAqKDkAFAAEUEoUBRAFAFAAQVBAABUICgAAAgoAgAAAAAAAogKoACKAgqCAoAigKIAAAgqAKgAAAAAAAqAKgooAAAIAAAAACgAIKggAAAAAAACiHQUAUAAAEIqAoBAAAAAQKCAAAAAAAAEVFAAAAAAAAFAAABEoAAAAAAAAAAAKAAYAoAIAAAAAgAAAAAAAAAoCCgAAAKKAAgCoAAIAAAAAAogigAAAAAUBRQAAFf/Z" name={"User"} />
-          );
-        })}
+        {users
+          .filter(({ connectionId }) => connectionId !== currentUser?.connectionId)  // Avoid showing the current user twice
+          .slice(0, 3)
+          .map(({ connectionId, info }) => {
+            return (
+              <Avatar key={connectionId} src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAtgMBIgACEQEDEQH/xAAXAAEBAQEAAAAAAAAAAAAAAAAAAQcC/8QAFxABAQEBAAAAAAAAAAAAAAAAAAFBEf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AxAAAAAAAAFEVARUAVFAAAioAqAAAAACAKACAKKIqKgAAACiKggqKAAAAAAAqKDkAFAAEUEoUBRAFAFAAQVBAABUICgAAAgoAgAAAAAAAogKoACKAgqCAoAigKIAAAgqAKgAAAAAAAqAKgooAAAIAAAAACgAIKggAAAAAAACiHQUAUAAAEIqAoBAAAAAQKCAAAAAAAAEVFAAAAAAAAFAAABEoAAAAAAAAAAAKAAYAoAIAAAAAgAAAAAAAAAoCCgAAAKKAAgCoAAIAAAAAAogigAAAAAUBRQAAFf/Z" name={"User"} />
+            );
+          })
+        }
 
         {hasMoreUsers && <div className={styles.more}>+{users.length - 3}</div>}
 

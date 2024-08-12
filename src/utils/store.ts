@@ -18,7 +18,7 @@ import { liveblocks } from "@liveblocks/zustand";
 import type { WithLiveblocks } from "@liveblocks/zustand";
 
 const client = createClient({
-  publicApiKey: "pk_prod__9V7BC9PmW4FAu4ZWKyuQd-OONSXRjDohvNzX7h_ar_i_W5KL82SAhhF_zb4CJfz",
+  publicApiKey: "pk_prod_e1kjkJy-Crc-J5flpjvpyWJpV5p9wnnNZbHG0FjVCvTjqSTo-Iya7wqvCztTczW9",
   throttle: 16,
 });
 

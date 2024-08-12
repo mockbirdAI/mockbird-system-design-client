@@ -6,6 +6,7 @@ import { CollaborativeApp } from "@/app/CollaborativeApp";
 import DiagramsClient from '@/app/diagram/[diagramId]/DiagramsClient';
 import { ReactFlowProvider } from "@xyflow/react";
 import EditableDiagramTitle from '@/components/EditableDiagramTitle';
+import { useEffect } from 'react';
 
 export default async function Page({ params }: { params: { diagramId: string } }) {
   
