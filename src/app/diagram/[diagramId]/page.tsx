@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: { diagramId: string } }
   return (
     <div className='h-screen w-screen'>
       <Room roomId={params.diagramId}>
-        <div className='flex w-full justify-between p-4'>
+        <div className='flex w-full justify-between p-4' style={{ backgroundColor: '#f0f0f0', borderBottom: 'solid', borderWidth: '1px' }}>
           {/* Pass the diagram data to EditableField */}
           <EditableDiagramTitle diagramId={diagram.id} initialValue={diagram.title} field="title" />
           <div>

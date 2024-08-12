@@ -11,7 +11,7 @@ export function CollaborativeApp() {
   const { user, error, isLoading } = useUser();
   const hasMoreUsers = users.length > 3;
   return (
-    <main className="flex select-none place-content-end">
+    <main className="flex select-none place-content-end" style={{ backgroundColor: '#f0f0f0' }}>
       <div className="flex pl-3">
         {users.slice(0, 3).map(({ connectionId, info }) => {
           return (

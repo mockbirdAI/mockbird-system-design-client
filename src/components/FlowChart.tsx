@@ -15,6 +15,7 @@ import {
   BackgroundVariant,
   ReactFlowInstance,
   Panel,
+  ColorMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import Cursor from './Cursor';
@@ -24,6 +25,8 @@ import Sidebar from './Sidebar';
 import nodeTypes from '../nodeConfig';
 import { useFlowManager } from '@/app/hooks/useFlowManager';
 import { serializeDiagram, deserializeDiagram } from '../utils/diagramUtils';
+import { toPng, toJpeg, toSvg, toBlob } from 'html-to-image';
+import { saveAs } from 'file-saver';
 
 import './main.css';
 import GenerateFlowchart from '@/components/GenerateFlowChart';
@@ -208,7 +211,19 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
     [executionOrder, updateNodeData]
   );
 
-
+  const exportToImage = async () => {
+    if (reactFlowWrapper.current) {
+      try {
+        const dataUrl = await toPng(reactFlowWrapper.current, {
+          backgroundColor: '#ffffff', // Set background color
+          pixelRatio: 2, // Increase resolution
+        });
+        saveAs(dataUrl, 'diagram.png');
+      } catch (error) {
+        console.error('Error exporting image:', error);
+      }
+    }
+  };
 
   return (
     <div
@@ -356,14 +371,16 @@ const FlowChart: React.FC<FlowChartProps> = ({ diagramId, initialNodes, initialE
           onConnect={onConnect}
           onDrop={handleDrop}
           onDragOver={onDragOver}
+          colorMode='light'
           fitView
         >
           <Controls position='top-left'/>
-          <Background color='#ccc' variant={BackgroundVariant.Dots} />
-          {/* <Panel position="top-right">
-            <button onClick={onSave}>save</button>
-            <button onClick={onRestore}>restore</button>
-          </Panel> */}
+          <Background variant={BackgroundVariant.Dots} />
+          <Panel position="top-right">
+            {/* <button onClick={onSave}>save</button>
+            <button onClick={onRestore}>restore</button> */}
+            <button onClick={exportToImage}>Export to PNG</button>
+          </Panel>
         </ReactFlow>
         <GenerateFlowchart addNodesAndEdges={addNodesAndEdges} currentDiagram={{ nodes, edges }} />
       </div>
